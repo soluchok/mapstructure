@@ -1,1 +1,1 @@
-module github.com/mitchellh/mapstructure
+module github.com/soluchok/mapstructure
