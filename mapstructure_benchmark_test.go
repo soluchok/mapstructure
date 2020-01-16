@@ -5,20 +5,20 @@ import (
 	"testing"
 )
 
-func Benchmark_Decode(b *testing.B) {
-	type Person struct {
-		Name   string
-		Age    int
-		Emails []string
-		Extra  map[string]string
-	}
+type Person struct {
+	Name   string
+	Age    int
+	Emails []string
+	Extra  map[string]string
+}
 
+func Benchmark_Decode(b *testing.B) {
 	input := map[string]interface{}{
-		"name":   "Mitchell",
+		"name":   "Benchmark",
 		"age":    91,
 		"emails": []string{"one", "two", "three"},
 		"extra": map[string]string{
-			"twitter": "mitchellh",
+			"nested": "benchmark",
 		},
 	}
 
@@ -41,19 +41,12 @@ func decodeViaJSON(data interface{}, v interface{}) error {
 }
 
 func Benchmark_DecodeViaJSON(b *testing.B) {
-	type Person struct {
-		Name   string
-		Age    int
-		Emails []string
-		Extra  map[string]string
-	}
-
 	input := map[string]interface{}{
-		"name":   "Mitchell",
+		"name":   "Benchmark",
 		"age":    91,
 		"emails": []string{"one", "two", "three"},
 		"extra": map[string]string{
-			"twitter": "mitchellh",
+			"nested": "benchmark",
 		},
 	}
 
@@ -63,19 +56,43 @@ func Benchmark_DecodeViaJSON(b *testing.B) {
 	}
 }
 
-func Benchmark_DecodeBasic(b *testing.B) {
+func Benchmark_JSONUnmarshal(b *testing.B) {
 	input := map[string]interface{}{
-		"vstring": "foo",
-		"vint":    42,
-		"Vuint":   42,
-		"vbool":   true,
-		"Vfloat":  42.42,
-		"vsilent": true,
-		"vdata":   42,
+		"name":   "Benchmark",
+		"age":    91,
+		"emails": []string{"one", "two", "three"},
+		"extra": map[string]string{
+			"nested": "benchmark",
+		},
 	}
 
-	var result Basic
+	inputB, err := json.Marshal(input)
+	if err != nil {
+		b.Fatal("Failed to marshal test input:", err)
+	}
+
+	var result Person
 	for i := 0; i < b.N; i++ {
+		json.Unmarshal(inputB, &result)
+	}
+}
+
+func Benchmark_DecodeBasic(b *testing.B) {
+	input := map[string]interface{}{
+		"vstring":     "foo",
+		"vint":        42,
+		"Vuint":       42,
+		"vbool":       true,
+		"Vfloat":      42.42,
+		"vsilent":     true,
+		"vdata":       42,
+		"vjsonInt":    json.Number("1234"),
+		"vjsonFloat":  json.Number("1234.5"),
+		"vjsonNumber": json.Number("1234.5"),
+	}
+
+	for i := 0; i < b.N; i++ {
+		var result Basic
 		Decode(input, &result)
 	}
 }
